@@ -1,3 +1,41 @@
+name: Sync Preservation Evoker Sources
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "data/sources.json"
+      - "assets/**"
+      - "src/post_to_discord.py"
+      - ".github/workflows/discord.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: preservation-evoker-sources
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Create or update Discord source posts
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: python src/post_to_discord.py
+
       - name: Persist Discord message IDs
         run: |
           if git diff --quiet -- data/discord_state.json; then
@@ -8,14 +46,11 @@
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          # Nur die neue State-Datei sichern
           cp data/discord_state.json /tmp/discord_state.json
 
-          # Aktuellen Stand von main holen
           git fetch origin main
           git reset --hard origin/main
 
-          # Neue State-Datei wieder einsetzen
           cp /tmp/discord_state.json data/discord_state.json
 
           git add data/discord_state.json
