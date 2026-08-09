@@ -19,7 +19,7 @@ def request_json(url: str, payload: dict, method: str):
         data=body,
         headers={
             "Content-Type": "application/json",
-            "User-Agent": "preservation-evoker-sources/1.0",
+            "User-Agent": "preservation-evoker-sources/2.0",
         },
         method=method,
     )
@@ -35,24 +35,43 @@ def request_json(url: str, payload: dict, method: str):
         raise RuntimeError(f"Discord connection failed: {exc.reason}") from exc
 
 
+def build_thumbnail_url(source: dict) -> str | None:
+    """Build a public raw GitHub URL for an image stored in this repository."""
+    thumbnail_path = source.get("thumbnail_path")
+    if not thumbnail_path:
+        return None
+
+    repository = os.environ.get("GITHUB_REPOSITORY")
+    if not repository:
+        # Useful for local tests. In GitHub Actions this variable is set automatically.
+        return None
+
+    encoded_path = urllib.parse.quote(thumbnail_path, safe="/")
+    return f"https://raw.githubusercontent.com/{repository}/main/{encoded_path}"
+
+
 def build_payload(source: dict) -> dict:
     description = (
         f'**Created by:** [{source["author_text"]}]({source["author_url"]})\n\n'
         f'**Updated:** {source["updated"]}\n'
         f'{source["updated_note"]}\n\n'
-        f'**[Guide öffnen]({source["guide_url"]})**'
+        f'🔗 **[Guide öffnen]({source["guide_url"]})**'
     )
+
+    embed = {
+        "title": source["title"],
+        "url": source["guide_url"],
+        "description": description,
+    }
+
+    thumbnail_url = build_thumbnail_url(source)
+    if thumbnail_url:
+        embed["thumbnail"] = {"url": thumbnail_url}
 
     return {
         "username": "Preservation Evoker Guides",
         "allowed_mentions": {"parse": []},
-        "embeds": [
-            {
-                "title": source["title"],
-                "url": source["guide_url"],
-                "description": description,
-            }
-        ],
+        "embeds": [embed],
     }
 
 
