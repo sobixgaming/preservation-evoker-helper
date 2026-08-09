@@ -7,6 +7,7 @@ on:
       - main
     paths:
       - "data/sources.json"
+      - "assets/**"
       - "src/post_to_discord.py"
       - ".github/workflows/discord.yml"
 
