@@ -35,3 +35,21 @@ Alle sichtbaren Informationen liegen in:
 `data/sources.json`
 
 Dort kannst du Autor, Datum, Hinweis und Links ändern.
+
+
+## Thumbnails
+
+Die vier Bilder liegen unter:
+
+- `assets/wowhead.png`
+- `assets/icy-veins.png`
+- `assets/method.png`
+- `assets/spiritbloom.png`
+
+In `data/sources.json` steht nur der relative `thumbnail_path`.
+Während der GitHub Action wird daraus automatisch:
+
+`https://raw.githubusercontent.com/OWNER/REPOSITORY/main/assets/DATEI.png`
+
+Wichtig: Das Repository muss öffentlich sein, damit Discord die Raw-GitHub-Bilder ohne Authentifizierung laden kann.
+Bei einem privaten Repository solltest du stattdessen öffentliche Bild-URLs in `sources.json` verwenden.
