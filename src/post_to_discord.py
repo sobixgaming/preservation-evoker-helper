@@ -85,7 +85,7 @@ def build_payload(source: dict, filename: str) -> dict:
         "title": source["title"],
         "url": source["guide_url"],
         "description": description,
-        "thumbnail": {"url": f"attachment://{filename}"},
+        "image": {"url": f"attachment://{filename}"},
     }
 
     return {
